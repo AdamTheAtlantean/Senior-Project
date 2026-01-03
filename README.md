@@ -28,7 +28,7 @@ SeniorProjectHRV/
 ├── README.md
 ├── requirements.txt
 ├── src/
-│   └── vanilla_rnn_hrv.py
+│   └── RNNv2.py
 ├── figures/
 │   ├── LossPerEpoch.png
 │   ├── RRnRRn-1.png
