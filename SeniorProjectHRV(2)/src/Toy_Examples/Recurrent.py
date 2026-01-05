@@ -97,7 +97,7 @@ def gd_step(params: dict, grads: dict, lr: float):
     params["b_y"]  -= lr * grads["db_y"]
 
 
-# Demo: our toy setup   --------------------------------------------------------
+# Demo: toy setup   --------------------------------------------------------
 
 if __name__ == "__main__":
     np.set_printoptions(precision=6, suppress=True)
