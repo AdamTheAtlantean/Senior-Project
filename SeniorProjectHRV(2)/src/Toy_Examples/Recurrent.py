@@ -1,8 +1,8 @@
 import numpy as np
 
-# ----------------------------
-# Activations
-# ----------------------------
+
+# Activations  ----------------------------
+
 def sigmoid(z: float) -> float:
     return 1.0 / (1.0 + np.exp(-z))
 
@@ -14,9 +14,9 @@ def tanh_prime_from_h(h: np.ndarray) -> np.ndarray:
     # derivative of tanh(z) using h = tanh(z)
     return 1.0 - h**2
 
-# ----------------------------
-# Forward + BPTT for 2-step toy RNN
-# ----------------------------
+
+# Forward + BPTT for 2-step toy RNN  ----------------------------
+
 def forward_backward_2step(
     x1: np.ndarray, x2: np.ndarray, y: float,
     W_xh: np.ndarray, W_hh: np.ndarray, b_h: np.ndarray,
@@ -35,7 +35,8 @@ def forward_backward_2step(
       grads dict with dW_xh, dW_hh, db_h, dW_hy, db_y
     """
 
-    # ---- Forward ----
+    # ---- Forward --------------------------------
+    
     z1 = W_xh @ x1 + W_hh @ h0 + b_h
     h1 = np.tanh(z1)
 
@@ -47,7 +48,8 @@ def forward_backward_2step(
 
     L = 0.5 * (yhat - y)**2
 
-    # ---- Backward (BPTT) ----
+    # ---- Backward (BPTT) ----  ----------------------------
+    
     # Output delta
     dL_dyhat = (yhat - y)
     dyhat_dzout = sigmoid_prime_from_yhat(yhat)
@@ -94,16 +96,16 @@ def gd_step(params: dict, grads: dict, lr: float):
     params["W_hy"] -= lr * grads["dW_hy"]
     params["b_y"]  -= lr * grads["db_y"]
 
-# ----------------------------
-# Demo: our toy setup (editable)
-# ----------------------------
+
+# Demo: our toy setup   --------------------------------------------------------
+
 if __name__ == "__main__":
     np.set_printoptions(precision=6, suppress=True)
 
     # Dimensions
     D, H = 2, 2
 
-    # Inputs (change these)
+    # Inputs 
     x1 = np.array([[1.0], [2.0]])
     x2 = np.array([[2.0], [1.0]])
     y  = 1.0
@@ -111,7 +113,7 @@ if __name__ == "__main__":
     # Initial hidden state
     h0 = np.zeros((H, 1))
 
-    # Parameters (start with your earlier numbers)
+    # Parameters
     params = {
         "W_xh": np.array([[0.10, 0.20],
                           [0.30, 0.40]]),
