@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 def load_rr_intervals(
     record_name: str = "100",
-    db_dir: str = "mit-bih-arrhythmia-database-1.0.0/Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0",
+    db_dir: str = "Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0",
     ann_extension: str = "atr",
     fs: float | None = None,
 ) -> np.ndarray:
