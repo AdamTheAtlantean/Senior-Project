@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 def load_rr_intervals(
     record_name: str = "100",
-    db_dir: str = "Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0",
+    db_dir: str = "data/mit-bih-arrhythmia-database-1.0.0",
     ann_extension: str = "atr",
     fs: float | None = None,
 ) -> np.ndarray:
@@ -250,7 +250,7 @@ class VanillaRNN:
 
 def main():
     # --- Load HRV (RR) from MIT-BIH ---
-    rr = load_rr_intervals(record_name="100", db_dir="/Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0")
+    rr = load_rr_intervals(record_name="100", db_dir="data/mit-bih-arrhythmia-database-1.0.0")
 
     # Plot Poincare plot for the raw HRV data (baseline geometry)
     plot_rr_poincare(rr, title="RR–RR$_{n-1}$ (Poincaré) plot: MIT-BIH HRV (raw RR intervals)")
