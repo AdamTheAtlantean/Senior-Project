@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import wfdb
 
 # Settings
-ekg_folder = "/Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0"  # folder containing 100.hea/.dat/.atr
+ekg_folder = "/data/mit-bih-arrhythmia-database-1.0.0"  # folder containing 100.hea/.dat/.atr
 record = "100"
 
 START_SEC = 0.0       # 0, 60, 120, etc.
