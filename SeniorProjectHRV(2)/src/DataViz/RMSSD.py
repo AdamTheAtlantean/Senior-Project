@@ -27,7 +27,7 @@ def load_rr_from_record(data_dir: str, record: str, rr_min=0.30, rr_max=2.00):
 
     return rr, rr_t, fs
 
-DATA_DIR = "/Users/adamtheatlantean/Desktop/SeniorProjectHRV/data/mit-bih-arrhythmia-database-1.0.0"
+DATA_DIR = "/data/mit-bih-arrhythmia-database-1.0.0"
 RECORD = "100"
 
 rr, rr_t, fs = load_rr_from_record(DATA_DIR, RECORD)
