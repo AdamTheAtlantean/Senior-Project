@@ -213,6 +213,53 @@ where \(J\) is the local Jacobian. Here, $\delta h_t$ denotes a small perturbati
 These same mechanisms govern gradient propagation during training. Contractive dynamics (\textit{i.e.}, \(|\lambda| < 1\)) lead to vanishing gradients, while expansive dynamics (\textit{i.e.}, \(|\lambda| > 1\)) give rise to exploding gradients. From a dynamical systems perspective, these effects are natural consequences of the recurrence structure as opposed to optimization failures.
 
 
+\subsection{Spectral Radius and Local Stability}
+
+The discussion thus far has stressed the fact that the evolution of perturbations in a recurrent neural network is governed by repeated multiplication of Jacobian matrices. While individual eigenvalues characterize directional sensitivity, it often proves useful to summarize the overall stability of a local linearization using a \textit{single scalar quantity}. This role is played by the \textit{spectral radius}.
+
+For a square matrix $J \in \mathbb{R}^{n \times n}$, the spectral radius is defined as
+\[
+\rho(J) = \max_i |\lambda_i|,
+\]
+where $\lambda_i$ denotes the eigenvalues of the Jacobian $J$. From the perspective of dynamical systems, the spectral radius provides criteria for local stability. If $\rho(J) < 1$, the linearized dynamics are contractive, and small perturbations decay over time. If $\rho(J) > 1$, perturbations grow, leading to instability. The boundary case $\rho(J) = 1$ corresponds to neutral stability, where perturbations neither decay nor grow exponentially.
+
+In recurrent neural networks, the spectral radius determines not only the stability of hidden-state trajectories, but also the behavior of gradients during training, further reflecting the coupled nature of state evolution and learning dynamics. Because backpropagation through time involves products of transposed Jacobian matrices, the very same spectral properties that govern forward sensitivity also control whether gradients vanish or explode. As a result, effective recurrent dynamics typically operate in a regime where the spectral radius is close to, but less than, unity, \textit{i.e.}, sufficiently small to ensure stability while remaining large enough to allow information to persist over extended time horizons.
+
+
+
+
+\subsection{Saturation, Contraction, and Loss of Sensitivity}
+
+As it pertains to neural networks, \textit{saturation} refers to regions of an activation function where its derivative is close to zero. When a neuron's input falls in this region, changes in its input produce only negligible changes in its output. In terms of dynamical systems, saturation corresponds to strong local contraction of state space \textit{i.e.}, perturbations to the hidden state decay rapidly, limiting the systems ability to retain information.
+
+This effect can be made explicit by examining the Jacobian of the recurrence relation. For a vanilla recurrent network the local Jacobian takes the form
+\[
+J_t = \mathrm{diag}\!\left(\phi'(z_t)\right) W_{hh},
+\]
+where \(z_t\) denotes the pre-activation vector. This form follows directly from the chain rule applied to the recurrence relation. Writing the update as
+\[
+z_t = W_{hh} h_{t-1} + W_{xh} x_t + b,
+\quad
+h_{t+1} = \phi(z_{t}),
+\]
+the Jacobian of the map $h_{t-1} \mapsto h_{t}$ is given by
+\[
+\frac{\partial h_{t}}{\partial h_{t-1}}
+=
+\frac{\partial h_{t}}{\partial z_t}
+\frac{\partial z_t}{\partial h_{t-1}}.
+\]
+Since $\phi$ acts elementwise, $\partial h_t/\partial z_t$ is a diagonal matrix with entries $\phi'(z_t)$, while $\partial z_t / \partial h_{t-1} = W_{hh}$. Combining these terms yields
+\[
+J_t = \mathrm{diag}\!\left(\phi'(z_t)\right) W_{hh},
+\]
+which reduces to $\mathrm{diag}(1 - h_t^2) W_{hh}$ when $\phi = \tanh$.
+When the activation function \(\phi\) saturates, its derivative \(\phi'(z_t)\) becomes small, causing the Jacobian to contract perturbations (\textit{i.e.}, small changes in the hidden state have less and less effect on future states) regardless of the structure of \(W_{hh}\).
+
+In recurrent networks, such contractions have two important consequences. First, they lead to rapid decay of perturbations in the hidden state, which effectively limits the network’s memory of past inputs. Second, because gradients propagate backward through products of Jacobian matrices, saturation directly contributes to the vanishing gradient phenomenon during training, \textit{i.e.}, gradients shrink exponentially as they are multiplied by successive Jacobian matrices with small spectral radii. For this reason, avoiding sustained operation in saturated regimes proves essential for maintaining both expressive state dynamics and stable learning behavior.
+
+
+
 
 
 \subsection{Activation Functions, Stability, and Gating}
@@ -229,7 +276,7 @@ By contrast, the hyperbolic tangent activation,
 \[
 \tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}},
 \]
-maps inputs to \((-1,1)\) and is symmetric about the origin. This symmetry allows the hidden state to represent both positive (excitatory) and negative (inhibitory) deviations from a baseline, for a more balanced state evolution. Furthermore, the derivative of \(\tanh(x)\) remains relatively large near zero, which helps preserve sensitivity to perturbations when the system operates in such a way. As a result, \(\tanh\) is better suited for maintaining stable yet expressive recurrent dynamics.
+maps inputs to \((-1,1)\) and is symmetric about the origin. This symmetry allows the hidden state to represent both positive (excitatory) and negative (inhibitory) deviations from a baseline, for a more balanced state evolution. Furthermore, the derivative of \(\tanh(x)\) remains relatively large near zero, which helps preserve sensitivity to perturbations when the system operates near the origin, where saturation is minimal. As a result, \(\tanh\) is better suited for maintaining stable yet expressive recurrent dynamics.
 
 
 \begin{figure}[h]
@@ -245,6 +292,8 @@ From a dynamical systems perspective, these differences can be understood in ter
 Though not involved in the hidden state nonlinearity, the sigmoid function does indeed play a significant role in recurrent architectures when used for gating (about the output) rather than state evolution. In this way, sigmoid nonlinearities act as smooth, bounded control variables that regulate information flow by controlling how much of a signal is transmitted or suppressed. When combined with a state activation such as \(\tanh\), this separation of roles allows recurrent networks to balance stability and flexibility.
 
 Although the present work focuses on a minimal recurrent architecture, these considerations illustrate how activation functions are not just simple implementation details, but genuinely integral components shaping the qualitative behavior of recurrent dynamical systems. Their selection reflects a trade-off between stability, sensitivity, and representational capacity, all of which are paramount in learning and memory in recurrent networks.
+
+
 
 
 \section{From Abstract Dynamics to Biological Time Series}
@@ -300,7 +349,7 @@ which produces a scalar prediction of the next RR value. The use of the hyperbol
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{BezierNet2.png}
+\includegraphics[width=0.8\textwidth]{BezierNet2.png}
 \caption{Dimensionality of the employed Neural net architecture encapsulating a single time step \(h_t\)}
 \end{figure}
 
@@ -315,8 +364,8 @@ so that sensitivities accumulated during backpropagation through time take the f
 \[
 \frac{\partial \mathcal{L}}{\partial h_0}
 =
-J_{t+1}^{\top}
-J_{t+2}^{\top}
+J_{1}^{\top}
+J_{2}^{\top}
 \cdots
 J_{50}^{\top}
 \frac{\partial \mathcal{L}}{\partial h_{50}}.
@@ -358,7 +407,7 @@ From a dynamical systems perspective, the Poincaré plot may be interpreted as a
 
 \subsection{Local Stability and Spectral Radius Along Learned Trajectories}
 
-To connect the theoretical discussion of stability with the trained model, the \textit{spectral radius} of the local Jacobian was evaluated along a representative hidden-state trajectory. At each time step \(t\), the Jacobian was computed. Here, the spectral radius $\rho(J_t)$ is defined as $\rho(J_t) = \max_i |\lambda_i(J_t)|$.
+To connect the theoretical discussion of stability with the trained model, the \textit{spectral radius} of the local Jacobian was evaluated along a hidden-state trajectory. 
 
 
 
@@ -424,6 +473,14 @@ S.~Haykin,
 3rd ed.,
 Pearson Education, Upper Saddle River, NJ, 2009.
 
+\bibitem{goodfellow}
+I.~Goodfellow, Y.~Bengio, and A.~Courville,
+\textit{Deep Learning},
+MIT Press, Cambridge, MA, 2016.
+Available at: \url{https://www.deeplearningbook.org/}.
+Accessed January 2026.
+
+
 \bibitem{williams_zipser_bptt}
 R.~J.~Williams and D.~Zipser,
 ``A Learning Algorithm for Continually Running Fully Recurrent Neural Networks,''
@@ -470,3 +527,4 @@ Accessed January 2026.
 
 
 \end{document}
+
