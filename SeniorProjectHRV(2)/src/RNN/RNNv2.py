@@ -4,7 +4,7 @@ Vanilla RNN demo on HRV (RR intervals) from MIT-BIH + Jacobian eigenvalue analys
 What this script does:
 1) Extracts RR intervals from WFDB annotations (MIT-BIH)
 2) Normalizes the RR series
-3) Trains a *vanilla* RNN from scratch (NumPy) with explicit BPTT
+3) Trains a vanilla RNN from scratch with explicit BPTT
 4) Computes local Jacobians J_t = d h_{t+1} / d h_t along a trajectory
 5) Computes eigenvalues of J_t and summarize spectral radius rho(J_t)
 6) Plot RR–RR_{n-1} (Poincare) plots: true HRV and true vs predicted
@@ -19,7 +19,7 @@ import wfdb
 import matplotlib.pyplot as plt
 
 
-# 1) Data: MIT-BIH -> RR intervals ------------------------------------------------------
+# 1) Data: MIT-BIH -> RR intervals
 
 def load_rr_intervals(
     record_name: str = "100",
@@ -40,11 +40,11 @@ def load_rr_intervals(
     rr_samples = np.diff(r_peaks)
     rr_seconds = rr_samples / fs
 
-    # Very light sanity filtering for demo purposes
+    # Very light sanity filtering for demoing purposess
     rr_seconds = rr_seconds[(rr_seconds > 0.3) & (rr_seconds < 2.0)]
     return rr_seconds
 
-
+# Normalize
 def zscore(x: np.ndarray) -> tuple[np.ndarray, float, float]:
     mu = float(np.mean(x))
     sd = float(np.std(x) + 1e-12)
@@ -64,8 +64,7 @@ def make_sequences(series: np.ndarray, seq_len: int = 50):
     return np.array(X, dtype=np.float64), np.array(Y, dtype=np.float64)
 
 
-# NEW: RR–RR_{n-1} (Poincare) plots ------------------------------------------------------
-
+# RR–RR_{n-1} (Poincare) plots 
 def plot_rr_poincare(rr_seconds: np.ndarray, title: str = "RR–RR$_{n-1}$ (Poincare) plot"):
     """
     Plots the classic HRV Poincare plot: (RR_{n-1}, RR_n).
@@ -114,7 +113,7 @@ def plot_rr_poincare_comparison(
     plt.show()
 
 
-# 2) Vanilla RNN (NumPy) with explicit  ------------------------------------------------------
+# 2) Vanilla RNN 
 
 class VanillaRNN:
     """
@@ -187,7 +186,8 @@ class VanillaRNN:
         self.db_h.fill(0.0)
         self.dW_hy.fill(0.0)
         self.db_y.fill(0.0)
-
+      
+    # Backprop through time
     def bptt(self, cache, y_true: np.ndarray, clip: float = 1.0):
         x_seq = cache["x_seq"]
         hs = cache["hs"]
@@ -231,7 +231,7 @@ class VanillaRNN:
         self.W_hy -= lr * self.dW_hy
         self.b_y  -= lr * self.db_y
 
-    # 3) Jacobian + eigenvalues utilities  ------------------------------------------------------
+    # 3) Jacobian and eigenvalues utilities
 
     def jacobian_hidden(self, h_t: np.ndarray, x_t: np.ndarray) -> np.ndarray:
         a_t = self.W_hh @ h_t + self.W_xh @ x_t + self.b_h
@@ -246,10 +246,10 @@ class VanillaRNN:
         return rho, eigvals
 
 
-# 4) Training + Jacobian eigenvalue analysis + plots ---------------------------------------
+# 4) Training and Jacobian eigenvalue analysis along with plots
 
 def main():
-    # --- Load HRV (RR) from MIT-BIH ---
+    # Load HRV (RR) from MIT-BIH 
     rr = load_rr_intervals(record_name="100", db_dir="data/mit-bih-arrhythmia-database-1.0.0")
 
     # Plot Poincare plot for the raw HRV data (baseline geometry)
@@ -257,7 +257,7 @@ def main():
 
     rr_z, mu, sd = zscore(rr)
 
-    # --- Make sequences ---
+    # Make sequences 
     seq_len = 50
     X, Y = make_sequences(rr_z, seq_len=seq_len)
 
@@ -292,7 +292,7 @@ def main():
         losses.append(epoch_loss)
         print(f"Epoch {ep:02d} | MSE loss = {epoch_loss:.6f}")
 
-    # --- Plot training loss ---
+    # Plotting training loss 
     plt.figure()
     plt.plot(losses)
     plt.title("Training loss (MSE) per epoch")
@@ -300,7 +300,7 @@ def main():
     plt.ylabel("loss")
     plt.show()
 
-    # --- Qualitative one step prediction on one window ---
+    # Qualitative one step prediction on one single window
     test_x = X[-1].reshape(seq_len, 1)
     test_y = Y[-1].reshape(seq_len)
 
@@ -322,7 +322,7 @@ def main():
     # Poincare plot comparison of true vs predicted (learned geometry)
     plot_rr_poincare_comparison(true_rr, pred_rr, title="RR–RR$_{n-1}$ plot: true vs predicted (one window)")
 
-    # --- Jacobian / eigenvalue analysis along the trajectory ---
+    # Jacobian / eigenvalue analysis along trajectory
     h = np.zeros((hidden_dim, 1))
 
     rhos = []
