@@ -2,12 +2,12 @@
 Vanilla RNN demo on HRV (RR intervals) from MIT-BIH + Jacobian eigenvalue analysis.
 
 What this script does:
-1) Extract RR intervals from WFDB annotations (MIT-BIH)
-2) Normalize (z-score) the RR series
-3) Train a *vanilla* RNN from scratch (NumPy) with explicit BPTT
-4) Compute local Jacobians J_t = d h_{t+1} / d h_t along a trajectory
-5) Compute eigenvalues of J_t and summarize spectral radius rho(J_t)
-6) Plot RR–RR_{n-1} (Poincaré) plots: true HRV and true vs predicted
+1) Extracts RR intervals from WFDB annotations (MIT-BIH)
+2) Normalizes the RR series
+3) Trains a *vanilla* RNN from scratch (NumPy) with explicit BPTT
+4) Computes local Jacobians J_t = d h_{t+1} / d h_t along a trajectory
+5) Computes eigenvalues of J_t and summarize spectral radius rho(J_t)
+6) Plot RR–RR_{n-1} (Poincare) plots: true HRV and true vs predicted
 
 Requirements:
   pip install wfdb numpy matplotlib
@@ -66,12 +66,12 @@ def make_sequences(series: np.ndarray, seq_len: int = 50):
 
 # NEW: RR–RR_{n-1} (Poincare) plots ------------------------------------------------------
 
-def plot_rr_poincare(rr_seconds: np.ndarray, title: str = "RR–RR$_{n-1}$ (Poincaré) plot"):
+def plot_rr_poincare(rr_seconds: np.ndarray, title: str = "RR–RR$_{n-1}$ (Poincare) plot"):
     """
-    Plots the classic HRV Poincaré plot: (RR_{n-1}, RR_n).
+    Plots the classic HRV Poincare plot: (RR_{n-1}, RR_n).
     """
     if len(rr_seconds) < 2:
-        print("Not enough RR samples for Poincaré plot.")
+        print("Not enough RR samples for Poincare plot.")
         return
 
     x = rr_seconds[:-1]
@@ -92,12 +92,12 @@ def plot_rr_poincare_comparison(
     title: str = "RR–RR$_{n-1}$ plot: true vs predicted"
 ):
     """
-    Overlays Poincaré plots for true RR and predicted RR.
+    Overlays Poincare plots for true RR and predicted RR.
     Both arrays should be in seconds, same length.
     """
     L = min(len(rr_true), len(rr_pred))
     if L < 2:
-        print("Not enough samples for comparison Poincaré plot.")
+        print("Not enough samples for comparison Poincare plot.")
         return
 
     rr_true = rr_true[:L]
@@ -253,7 +253,7 @@ def main():
     rr = load_rr_intervals(record_name="100", db_dir="data/mit-bih-arrhythmia-database-1.0.0")
 
     # Plot Poincare plot for the raw HRV data (baseline geometry)
-    plot_rr_poincare(rr, title="RR–RR$_{n-1}$ (Poincaré) plot: MIT-BIH HRV (raw RR intervals)")
+    plot_rr_poincare(rr, title="RR–RR$_{n-1}$ (Poincare) plot: MIT-BIH HRV (raw RR intervals)")
 
     rr_z, mu, sd = zscore(rr)
 
